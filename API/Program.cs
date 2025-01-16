@@ -4,7 +4,7 @@ using Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddAPIServices()
+    .AddAPIServices(builder)
     .AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
@@ -18,6 +18,8 @@ if (app.Environment.IsDevelopment())
         setup.SwaggerEndpoint("/swagger/v1/swagger.json", "AuthCore Api V1");
     });
 }
+
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 

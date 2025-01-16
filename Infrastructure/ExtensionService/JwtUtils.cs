@@ -10,31 +10,33 @@ namespace Infrastructure.ExtensionService
 {
     public static class JwtUtils
     {
-        public static string GenerateToken(this Account account, IOptions<JwtSetting> setting)
+        public static string GenerateToken(this Account account,
+            DateTime now,
+                                           IOptions<JwtSetting> setting,
+                                           string? secretKey = null,
+                                           int? minuteValid = null)
         {
-            var handler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(setting.Value.PrivateKey);
-            var credentials = new SigningCredentials(
-                new SymmetricSecurityKey(key),
-                SecurityAlgorithms.HmacSha256Signature);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = GenerateClaims(account),
-                Expires = DateTime.UtcNow.AddMinutes(15),
-                SigningCredentials = credentials,
-            };
-
-            var token = handler.CreateToken(tokenDescriptor);
-            return handler.WriteToken(token);
+            var jwtSetting = setting.Value;
+            var key = Encoding.UTF8.GetBytes(secretKey ?? jwtSetting.Key);
+            var securityKey = new SymmetricSecurityKey(key);
+            var credentials = new SigningCredentials(securityKey,
+                                                     SecurityAlgorithms.HmacSha256Signature);
+            var claims = GenerateClaims(account);
+            var token = new JwtSecurityToken(jwtSetting.Issuer,
+                                             jwtSetting.Audience,
+                                             claims,
+                                             expires: now.AddMinutes(minuteValid ?? jwtSetting.TokenExpirationMinutes),
+                                             signingCredentials: credentials);
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        private static ClaimsIdentity GenerateClaims(Account account)
+        private static IEnumerable<Claim> GenerateClaims(Account account)
         {
-            var claims = new ClaimsIdentity();
-            claims.AddClaim(new Claim(ClaimTypes.Name, account.LastName));
-            claims.AddClaim(new Claim(ClaimTypes.Email, account.Email));
-            claims.AddClaim(new Claim("Id", account.Id.ToString()));
+            IEnumerable<Claim> claims = [
+                new Claim(ClaimTypes.Name, account.LastName),
+                new Claim(ClaimTypes.Email, account.Email),
+                new Claim("Id", account.Id.ToString())
+                ];
             return claims;
         }
     }

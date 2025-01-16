@@ -1,5 +1,7 @@
-﻿using Application.Interface.Repository;
+﻿using Application.Interface;
+using Application.Interface.Repository;
 using Application.Interface.Service;
+using Infrastructure.Implement;
 using Infrastructure.Implement.Repository;
 using Infrastructure.Implement.Service;
 using Infrastructure.Security;
@@ -15,9 +17,9 @@ namespace Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
         {
             services
-                .AddServices()
                 .AddAuthen(config)
-                .AddPersistance(config);
+                .AddPersistance(config)
+                .AddServices();
 
             return services;
         }
@@ -30,6 +32,7 @@ namespace Infrastructure
             services.AddScoped(typeof(IBaseService<>), typeof(BaseService<>));
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ITaskService, TaskService>();
+            services.AddScoped<ICacheService, CacheService>();
 
             return services;
         }
@@ -65,6 +68,7 @@ namespace Infrastructure
             services.AddScoped<IAccountRepo, AccountRepo>();
             services.AddScoped<ITaskRepo, TaskRepo>();
 
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             return services;
         }
     }

@@ -6,7 +6,7 @@
 
         public string Audience { get; set; } = null!;
         public string Issuer { get; set; } = null!;
-        public string PrivateKey { get; set; } = null!;
+        public string Key { get; set; } = null!;
         public int TokenExpirationMinutes { get; set; }
     }
 }

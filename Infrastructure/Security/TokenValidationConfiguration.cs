@@ -15,7 +15,7 @@ namespace Infrastructure.Security
         {
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSetting.PrivateKey ?? throw new KeyNotFoundException("Jwt Screcet key not found."))),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSetting.Key ?? throw new KeyNotFoundException("Jwt Screcet key not found."))),
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateIssuerSigningKey = true,

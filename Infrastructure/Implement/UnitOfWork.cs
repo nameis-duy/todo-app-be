@@ -7,12 +7,12 @@ namespace Infrastructure.Implement
     {
         private IDbContextTransaction transaction;
 
-        public async Task BeginTransaction()
+        public async Task BeginTransactionAsync()
         {
             transaction = await context.Database.BeginTransactionAsync();
         }
 
-        public async Task<bool> CommitTransaction()
+        public async Task<bool> CommitTransactionAsync()
         {
             try
             {

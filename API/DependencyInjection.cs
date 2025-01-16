@@ -1,27 +1,38 @@
-﻿using Asp.Versioning;
+﻿using API.Middlewares;
+using Asp.Versioning;
 using Microsoft.OpenApi.Models;
 
 namespace API
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddAPIServices(this IServiceCollection services)
+        public static IServiceCollection AddAPIServices(this IServiceCollection services, WebApplicationBuilder builder)
         {
             services.AddControllers();
             services
-                .AddConfigFile()
+                .AddRouting(opt => opt.LowercaseUrls = true)
+                .AddExceptionHandlerMiddle()
+                .AddConfigFile(builder.Configuration)
                 .AddVersioning()
                 .AddEndpointsApiExplorer()
                 .AddSwagger()
-                .AddHttpContextAccessor();
+                .AddHttpContextAccessor()
+                .AddDistributedMemoryCache();
 
             return services;
         }
 
-        public static IServiceCollection AddConfigFile(this IServiceCollection services)
+        public static IServiceCollection AddConfigFile(this IServiceCollection services, ConfigurationManager configuration)
         {
-            var configBuilder = new ConfigurationBuilder();
-            configBuilder.AddJsonFile("appsecret.json", false, true);
+            configuration.AddJsonFile("appsecret.json", false, true);
+            return services;
+        }
+
+        public static IServiceCollection AddExceptionHandlerMiddle(this IServiceCollection services)
+        {
+            services
+                .AddExceptionHandler<GlobalExceptionHandler>()
+                .AddProblemDetails();
 
             return services;
         }

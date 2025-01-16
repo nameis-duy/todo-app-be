@@ -2,7 +2,7 @@
 {
     public interface IUnitOfWork : IDisposable
     {
-        Task BeginTransaction();
-        Task<bool> CommitTransaction();
+        Task BeginTransactionAsync();
+        Task<bool> CommitTransactionAsync();
     }
 }
