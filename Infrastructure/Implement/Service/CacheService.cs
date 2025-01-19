@@ -1,12 +1,6 @@
 ﻿using Application.Interface.Service;
 using Microsoft.Extensions.Caching.Distributed;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Implement.Service
 {
@@ -26,10 +20,11 @@ namespace Infrastructure.Implement.Service
             return default;
         }
 
-        public async Task SetAsync<T>(string key, T data)
+        public async Task SetAsync<T>(string key, T data, int minutesValid)
         {
             var dataJson = JsonSerializer.Serialize(data);
-            await cache.SetStringAsync(key, dataJson);
+            var opts = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(minutesValid));
+            await cache.SetStringAsync(key, dataJson, opts);
         }
     }
 }

@@ -20,9 +20,9 @@ namespace Infrastructure.Implement.Service
             return await entityRepo.FindAsync(keys);
         }
 
-        public IQueryable<TEntity> GetAll()
+        public IQueryable<TEntity> GetAll(bool isTracking = false)
         {
-            return entityRepo.GetAll();
+            return entityRepo.GetAll(isTracking);
         }
     }
 }

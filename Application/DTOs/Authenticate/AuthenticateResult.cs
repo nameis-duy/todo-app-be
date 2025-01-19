@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Application.DTOs.Authenticate
+﻿namespace Application.DTOs.Authenticate
 {
 #pragma warning disable CS8618
     public class AuthenticateResult

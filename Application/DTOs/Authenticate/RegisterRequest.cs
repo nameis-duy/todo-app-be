@@ -1,7 +1,7 @@
 ﻿namespace Application.DTOs.Authenticate
 {
 #pragma warning disable CS8618
-    public class RegisterRequest
+    public record RegisterRequest
     {
         public string Email { get; set; }
         public string Password { get; set; }

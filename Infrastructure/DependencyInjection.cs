@@ -1,6 +1,7 @@
 ﻿using Application.Interface;
 using Application.Interface.Repository;
 using Application.Interface.Service;
+using FluentValidation;
 using Infrastructure.Implement;
 using Infrastructure.Implement.Repository;
 using Infrastructure.Implement.Service;
@@ -19,7 +20,8 @@ namespace Infrastructure
             services
                 .AddAuthen(config)
                 .AddPersistance(config)
-                .AddServices();
+                .AddServices()
+                .AddValidatorsFromAssemblyContaining(typeof(DependencyInjection));
 
             return services;
         }

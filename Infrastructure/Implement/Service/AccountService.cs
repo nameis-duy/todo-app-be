@@ -10,7 +10,6 @@ using Infrastructure.ExtensionService;
 using Infrastructure.Security;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Implement.Service
@@ -42,15 +41,18 @@ namespace Infrastructure.Implement.Service
                 {
                     var now = timeService.GetCurrentLocalDateTime();
                     var accessToken = account.GenerateToken(now, jwtSetting);
+                    var refreshTokenMinutesValid = 60 * 24;//24 hours
 
-                    var refreshTokenSecretKey = account.Email + "" + account.LastName;  
+                    var refreshTokenSecretKey = account.Email + "" + account.LastName;
                     var hashedRefreshTokenSecreyKey = refreshTokenSecretKey.ComputeSha256Hash();
                     var refreshToken = account.GenerateToken(now, jwtSetting,
-                        hashedRefreshTokenSecreyKey, 
-                        minuteValid: 60 * 24); //expired after 24 hours
+                        hashedRefreshTokenSecreyKey,
+                        minuteValid: refreshTokenMinutesValid);
 
                     //cache refresh token in distributed cache
-                    await cacheService.SetAsync(string.Format(CacheConstant.REFRESH_TOKEN_CACHE_ID, account.Id), refreshToken);
+                    await cacheService.SetAsync(string.Format(CacheConstant.REFRESH_TOKEN_CACHE_ID, account.Id),
+                                                refreshToken,
+                                                refreshTokenMinutesValid);
 
                     return new ResponseResult<AuthenticateResult>
                     {
@@ -87,12 +89,18 @@ namespace Infrastructure.Implement.Service
                     };
                     var now = timeService.GetCurrentLocalDateTime();
                     var accessToken = account.GenerateToken(now, jwtSetting);
+                    var refreshTokenMinutesValid = 60 * 24;//expired after 24 hours
 
                     var refreshTokenSecretKey = account.Email + "" + account.LastName;
                     var hashedRefreshTokenSecreyKey = refreshTokenSecretKey.ComputeSha256Hash();
                     var refreshToken = account.GenerateToken(now, jwtSetting,
                         hashedRefreshTokenSecreyKey,
-                        minuteValid: 60 * 24); //expired after 24 hours
+                        minuteValid: refreshTokenMinutesValid);
+
+                    //cache refresh token in distributed cache
+                    await cacheService.SetAsync(string.Format(CacheConstant.REFRESH_TOKEN_CACHE_ID, account.Id),
+                                                refreshToken,
+                                                refreshTokenMinutesValid);
 
                     return new ResponseResult<AuthenticateResult>
                     {

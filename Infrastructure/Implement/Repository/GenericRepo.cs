@@ -1,4 +1,5 @@
 ﻿using Application.Interface.Repository;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Implement.Repository
 {
@@ -19,9 +20,10 @@ namespace Infrastructure.Implement.Repository
             return await context.Set<TEntity>().FindAsync(keys);
         }
 
-        public IQueryable<TEntity> GetAll()
+        public IQueryable<TEntity> GetAll(bool isTracking = false)
         {
-            return context.Set<TEntity>();
+            if (isTracking) return context.Set<TEntity>().AsQueryable();
+            return context.Set<TEntity>().AsNoTracking();
         }
 
         public void Update(TEntity entity)
