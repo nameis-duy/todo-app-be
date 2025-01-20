@@ -6,6 +6,7 @@ namespace Application.Interface.Service
 {
     public interface ITaskService : IBaseService<Tasks>
     {
+        Task<ResponseResult<TaskVM?>> GetTaskById(int id);
         Task<ResponseResult<int>> CreateTaskAsync(TaskCreateRequest dto);
         Task<ResponseResult<TaskVM>> UpdateTaskAsync(TaskUpdateRequest dto);
         Task<ResponseResult<TaskVM>> UpdateTaskStatusAsync(TaskChangeStatusRequest dto);

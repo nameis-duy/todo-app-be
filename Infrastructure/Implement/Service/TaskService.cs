@@ -39,6 +39,20 @@ namespace Infrastructure.Implement.Service
             throw new DbUpdateException("Create tasks failed. Server error.");
         }
 
+        public async Task<ResponseResult<TaskVM?>> GetTaskById(int id)
+        {
+            var task = await entityRepo.GetAll()
+                .FirstOrDefaultAsync(t => t.Id == id
+                && !t.IsRemoved
+                && t.CreatedBy == currentUserId);
+
+            return new ResponseResult<TaskVM?>
+            {
+                Data = task.Adapt<TaskVM>(),
+                IsSucceed = true,
+            };
+        }
+
         public async Task<ResponseResult<int>> RemoveTaskAsync(TaskRemoveRequest dto)
         {
             var task = await entityRepo.FindAsync(dto.Id);

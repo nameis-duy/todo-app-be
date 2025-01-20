@@ -11,6 +11,16 @@ namespace API.Controllers
     public class TaskController(ITaskService taskService) : BaseController
     {
         [ApiVersion(1)]
+        [HttpGet("{id:int}")]
+        [Authorize]
+        public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
+        {
+            var task = await taskService.GetTaskById(id);
+            if (task.Data is not null) return Ok(task);
+            return NotFound("Task does not exist");
+        }
+
+        [ApiVersion(1)]
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> CreateTaskAsync([FromServices] IValidator<TaskCreateRequest> validator,
