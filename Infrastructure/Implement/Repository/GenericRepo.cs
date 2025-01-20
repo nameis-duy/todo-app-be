@@ -1,5 +1,7 @@
 ﻿using Application.Interface.Repository;
+using Application.Others;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Infrastructure.Implement.Repository
 {
@@ -24,6 +26,26 @@ namespace Infrastructure.Implement.Repository
         {
             if (isTracking) return context.Set<TEntity>().AsQueryable();
             return context.Set<TEntity>().AsNoTracking();
+        }
+
+        public async Task<Pagination<TEntity>> GetPageAsync(Expression<Func<TEntity, bool>>? predicate,
+                                                            int pageIndex,
+                                                            int pageSize)
+        {
+            var source = context.Set<TEntity>();
+            if (predicate is not null) source.Where(predicate);
+            var totalCount = await source.CountAsync();
+            var items = await source.AsNoTracking()
+                .Skip(pageIndex * pageSize).Take(pageSize)
+                .ToListAsync();
+            var result = new Pagination<TEntity>()
+            {
+                Items = items,
+                PageNumber = pageIndex,
+                PageSize = pageSize,
+                TotalItems = totalCount
+            };
+            return result;
         }
 
         public void Update(TEntity entity)

@@ -1,4 +1,7 @@
-﻿namespace Application.Interface.Service
+﻿using Application.Others;
+using System.Linq.Expressions;
+
+namespace Application.Interface.Service
 {
     public interface IBaseService<TEntity> where TEntity : class
     {

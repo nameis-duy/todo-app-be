@@ -18,7 +18,7 @@ namespace Infrastructure.Validators.Task
                     var isExistTask = await taskService.GetAll()
                         .AnyAsync(t => t.Id == id
                         && !t.IsRemoved
-                        && t.CreatedBy == currentUserId, 
+                        && t.CreatedBy == currentUserId,
                         cancellationToken: ct);
                     if (isExistTask is false)
                     {
