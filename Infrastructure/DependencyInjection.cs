@@ -21,6 +21,7 @@ namespace Infrastructure
                 .AddAuthen(config)
                 .AddPersistance(config)
                 .AddServices()
+                .AddMapsterConfig()
                 .AddValidatorsFromAssemblyContaining(typeof(DependencyInjection));
 
             return services;

@@ -12,6 +12,10 @@ namespace Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            modelBuilder.Entity<Tasks>()
+                .HasOne(t => t.Account)
+                .WithMany(a => a.Tasks)
+                .HasForeignKey(t => t.CreatedBy);
         }
     }
 }

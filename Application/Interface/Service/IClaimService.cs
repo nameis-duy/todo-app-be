@@ -2,6 +2,7 @@
 {
     public interface IClaimService
     {
+        int GetCurrentUserId();
         string GetClaim(string claimType);
     }
 }
