@@ -15,8 +15,8 @@ namespace API.Controllers
         [Authorize]
         public async Task<IActionResult> GetAllAsync()
         {
-            var task = await taskService.GetAllTasks();
-            return Ok(task);
+            var tasks = await taskService.GetAllTasks();
+            return Ok(tasks);
         }
 
         [ApiVersion(1)]
@@ -27,6 +27,17 @@ namespace API.Controllers
             var task = await taskService.GetTaskById(id);
             if (task.Data is not null) return Ok(task);
             return NotFound("Task does not exist");
+        }
+
+        [ApiVersion(1)]
+        [HttpGet("page")]
+        [Authorize]
+        public async Task<IActionResult> GetPageAsync([FromQuery] int pageIndex = 0, [FromQuery] int pageSize = 10)
+        {
+            if (pageIndex < 0) return BadRequest("Page index is invalid");
+            if (pageSize <= 0) return BadRequest("Page size is invalid");
+            var tasksPage = await taskService.GetPageAsync(pageIndex, pageSize);
+            return Ok(tasksPage);
         }
 
         [ApiVersion(1)]

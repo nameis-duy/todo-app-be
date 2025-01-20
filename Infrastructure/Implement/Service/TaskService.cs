@@ -3,6 +3,7 @@ using Application.DTOs.Task;
 using Application.Interface;
 using Application.Interface.Repository;
 using Application.Interface.Service;
+using Application.Others;
 using Domain.Entity;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -53,6 +54,15 @@ namespace Infrastructure.Implement.Service
                 Data = tasks.Adapt<IEnumerable<TaskVM>>(),
                 IsSucceed = true
             };
+        }
+
+        public async Task<Pagination<TaskVM>> GetPageAsync(int pageIndex = 0, int pageSize = 10)
+        {
+            var tasksPage = await entityRepo.GetPageAsync(pageIndex, pageSize,
+                t => t.CreatedBy == currentUserId
+                && !t.IsRemoved);
+
+            return tasksPage.Adapt<Pagination<TaskVM>>();
         }
 
         public async Task<ResponseResult<TaskVM?>> GetTaskById(int id)

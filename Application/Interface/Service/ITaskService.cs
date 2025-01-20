@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Base;
 using Application.DTOs.Task;
+using Application.Others;
 using Domain.Entity;
 
 namespace Application.Interface.Service
@@ -8,6 +9,7 @@ namespace Application.Interface.Service
     {
         Task<ResponseResult<TaskVM?>> GetTaskById(int id);
         Task<ResponseResult<IEnumerable<TaskVM>>> GetAllTasks();
+        Task<Pagination<TaskVM>> GetPageAsync(int pageIndex = 0, int pageSize = 10);
         Task<ResponseResult<int>> CreateTaskAsync(TaskCreateRequest dto);
         Task<ResponseResult<TaskVM>> UpdateTaskAsync(TaskUpdateRequest dto);
         Task<ResponseResult<TaskVM>> UpdateTaskStatusAsync(TaskChangeStatusRequest dto);

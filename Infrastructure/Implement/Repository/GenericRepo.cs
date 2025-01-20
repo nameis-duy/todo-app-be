@@ -28,12 +28,12 @@ namespace Infrastructure.Implement.Repository
             return context.Set<TEntity>().AsNoTracking();
         }
 
-        public async Task<Pagination<TEntity>> GetPageAsync(Expression<Func<TEntity, bool>>? predicate,
-                                                            int pageIndex,
-                                                            int pageSize)
+        public async Task<Pagination<TEntity>> GetPageAsync(int pageIndex,
+                                                            int pageSize,
+                                                            Expression<Func<TEntity, bool>>? predicate = null)
         {
-            var source = context.Set<TEntity>();
-            if (predicate is not null) source.Where(predicate);
+            var source = context.Set<TEntity>().AsQueryable();
+            if (predicate is not null) source = source.Where(predicate);
             var totalCount = await source.CountAsync();
             var items = await source.AsNoTracking()
                 .Skip(pageIndex * pageSize).Take(pageSize)
