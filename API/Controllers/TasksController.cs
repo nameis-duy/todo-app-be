@@ -8,8 +8,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    public class TaskController(ITaskService taskService) : BaseController
+    public class TasksController(ITaskService taskService) : BaseController
     {
+        [ApiVersion(1)]
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            var task = await taskService.GetAllTasks();
+            return Ok(task);
+        }
+
         [ApiVersion(1)]
         [HttpGet("{id:int}")]
         [Authorize]
