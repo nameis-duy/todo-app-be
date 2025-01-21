@@ -24,7 +24,7 @@ namespace Infrastructure.Implement.Repository
 
         public IQueryable<TEntity> GetAll(bool isTracking = false)
         {
-            if (isTracking) return context.Set<TEntity>().AsQueryable();
+            if (isTracking) return context.Set<TEntity>();
             return context.Set<TEntity>().AsNoTracking();
         }
 

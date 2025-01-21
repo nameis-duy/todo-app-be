@@ -1,8 +1,6 @@
 ﻿using Application.Interface;
 using Application.Interface.Repository;
 using Application.Interface.Service;
-using Application.Others;
-using System.Linq.Expressions;
 
 namespace Infrastructure.Implement.Service
 {
