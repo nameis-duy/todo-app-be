@@ -12,6 +12,7 @@ namespace API
             services
                 .AddRouting(opt => opt.LowercaseUrls = true)
                 .AddExceptionHandlerMiddle()
+                .AddSecurity()
                 .AddConfigFile(builder.Configuration)
                 .AddVersioning()
                 .AddEndpointsApiExplorer()
@@ -33,6 +34,21 @@ namespace API
             services
                 .AddExceptionHandler<GlobalExceptionHandler>()
                 .AddProblemDetails();
+
+            return services;
+        }
+
+        public static IServiceCollection AddSecurity(this IServiceCollection services)
+        {
+            services.AddCors(setup =>
+            {
+                setup.AddDefaultPolicy(poli =>
+                {
+                    poli.WithOrigins("http://localhost:4200");
+                    poli.AllowAnyHeader();
+                    poli.AllowAnyMethod();
+                });
+            });
 
             return services;
         }
