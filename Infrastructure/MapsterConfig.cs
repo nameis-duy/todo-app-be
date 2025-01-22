@@ -16,6 +16,10 @@ namespace Infrastructure
                 .Map(dest => dest.Priority, src => Enum.GetName(typeof(Priority), src.Priority))
                 .Map(dest => dest.Status, src => Enum.GetName(typeof(Status), src.Status));
 
+            TypeAdapterConfig<TaskCreateRequest, Tasks>
+                .NewConfig()
+                .Map(dest => dest.ExpiredAtUtc, src => TimeZoneInfo.ConvertTimeToUtc(src.ExpiredAt));
+
             return services;
         }
     }

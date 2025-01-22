@@ -2,8 +2,8 @@
 {
     public enum Status
     {
-        Pending,
-        InProcess,
-        Finished
+        Pending = 0,
+        InProcess = 1,
+        Finished = 2
     }
 }

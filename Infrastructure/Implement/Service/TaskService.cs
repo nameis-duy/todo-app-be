@@ -23,7 +23,7 @@ namespace Infrastructure.Implement.Service
             currentUserId = claimService.GetCurrentUserId();
         }
 
-        public async Task<ResponseResult<int>> CreateTaskAsync(TaskCreateRequest dto)
+        public async Task<ResponseResult<TaskVM>> CreateTaskAsync(TaskCreateRequest dto)
         {
             var task = dto.Adapt<Tasks>();
             task.CreatedBy = currentUserId;
@@ -32,9 +32,9 @@ namespace Infrastructure.Implement.Service
             await uow.BeginTransactionAsync();
             await entityRepo.AddAsync(task);
             var isSucceed = await uow.CommitTransactionAsync();
-            if (isSucceed) return new ResponseResult<int>
+            if (isSucceed) return new ResponseResult<TaskVM>
             {
-                Data = task.Id,
+                Data = task.Adapt<TaskVM>(),
                 IsSucceed = isSucceed,
             };
             throw new DbUpdateException("Create tasks failed. Server error.");

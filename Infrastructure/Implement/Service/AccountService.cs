@@ -120,6 +120,7 @@ namespace Infrastructure.Implement.Service
             };
         }
 
+        //should we use transaction in this function...
         public async Task<ResponseResult<AccountVM>> RegisterAsync(RegisterRequest dto)
         {
             var account = dto.Adapt<Account>();
