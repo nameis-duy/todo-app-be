@@ -36,6 +36,7 @@ namespace Infrastructure
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<ICacheService, CacheService>();
+            services.AddScoped<IEnumService, EnumService>();
 
             return services;
         }

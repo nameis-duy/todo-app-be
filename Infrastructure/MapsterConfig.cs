@@ -20,6 +20,10 @@ namespace Infrastructure
                 .NewConfig()
                 .Map(dest => dest.ExpiredAtUtc, src => TimeZoneInfo.ConvertTimeToUtc(src.ExpiredAt));
 
+            TypeAdapterConfig<TaskUpdateRequest, Tasks>
+                .NewConfig()
+                .Map(dest => dest.ExpiredAtUtc, src => TimeZoneInfo.ConvertTimeToUtc(src.ExpiredAt));
+
             return services;
         }
     }

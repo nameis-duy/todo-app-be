@@ -10,7 +10,7 @@ namespace Infrastructure.Validators.Task
                                           ITaskService taskService,
                                           IClaimService claimService)
         {
-            var utcNow = timeService.GetCurrentUtcDatetime();
+            var now = timeService.GetCurrentLocalDateTime();
 
             Include(new BaseTaskUpdateRequestValidator(taskService, claimService));
             RuleFor(t => t.Title)
@@ -19,8 +19,8 @@ namespace Infrastructure.Validators.Task
             RuleFor(t => t.Description)
                 .NotNull()
                 .MaximumLength(255);
-            RuleFor(t => t.ExpiredAtUtc)
-                .GreaterThanOrEqualTo(utcNow.AddMinutes(30));
+            RuleFor(t => t.ExpiredAt)
+                .GreaterThanOrEqualTo(now.AddMinutes(30));
             RuleFor(t => t.Priority)
                 .IsInEnum();
             RuleFor(t => t.Status)
