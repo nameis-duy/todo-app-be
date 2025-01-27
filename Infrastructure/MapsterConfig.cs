@@ -12,7 +12,7 @@ namespace Infrastructure
         {
             TypeAdapterConfig<Tasks, TaskVM>
                 .NewConfig()
-                .Map(dest => dest.IsCompleted, src => src.Status == Status.Finished)
+                .Map(dest => dest.IsCompleted, src => src.Status == Status.Completed)
                 .Map(dest => dest.Priority, src => Enum.GetName(typeof(Priority), src.Priority))
                 .Map(dest => dest.Status, src => Enum.GetName(typeof(Status), src.Status));
 

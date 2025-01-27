@@ -45,8 +45,8 @@ namespace Infrastructure.Implement.Service
             var tasks = await entityRepo.GetAll()
                 .Where(t => t.CreatedBy == currentUserId
                 && !t.IsRemoved)
-                .OrderByDescending(t => t.Priority)
                 .OrderBy(t => t.Status)
+                .OrderByDescending(t => t.Priority)
                 .ToListAsync();
 
             return new ResponseResult<IEnumerable<TaskVM>>
