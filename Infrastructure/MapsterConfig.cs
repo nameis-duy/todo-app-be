@@ -18,11 +18,13 @@ namespace Infrastructure
 
             TypeAdapterConfig<TaskCreateRequest, Tasks>
                 .NewConfig()
-                .Map(dest => dest.ExpiredAtUtc, src => TimeZoneInfo.ConvertTimeToUtc(src.ExpiredAt));
+                .Map(dest => dest.ExpiredAtUtc,
+                src => DateTime.SpecifyKind(src.ExpiredAt, DateTimeKind.Local).ToUniversalTime());
 
             TypeAdapterConfig<TaskUpdateRequest, Tasks>
                 .NewConfig()
-                .Map(dest => dest.ExpiredAtUtc, src => TimeZoneInfo.ConvertTimeToUtc(src.ExpiredAt));
+                .Map(dest => dest.ExpiredAtUtc,
+                src => DateTime.SpecifyKind(src.ExpiredAt, DateTimeKind.Local).ToUniversalTime());
 
             return services;
         }

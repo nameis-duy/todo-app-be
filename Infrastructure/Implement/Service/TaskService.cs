@@ -46,7 +46,8 @@ namespace Infrastructure.Implement.Service
                 .Where(t => t.CreatedBy == currentUserId
                 && !t.IsRemoved)
                 .OrderBy(t => t.Status)
-                .OrderByDescending(t => t.Priority)
+                .ThenByDescending(t => t.Priority)
+                .ThenBy(t => t.CreatedAtUtc)
                 .ToListAsync();
 
             return new ResponseResult<IEnumerable<TaskVM>>

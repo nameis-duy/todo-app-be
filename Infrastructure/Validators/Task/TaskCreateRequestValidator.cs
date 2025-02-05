@@ -12,10 +12,9 @@ namespace Infrastructure.Validators.Task
 
             RuleFor(t => t.Title)
                 .NotNull()
-                .Length(6, 150);
+                .Length(6, 255);
             RuleFor(t => t.Description)
-                .NotNull()
-                .MaximumLength(255);
+                .NotNull();
             RuleFor(t => t.ExpiredAt)
                 .GreaterThanOrEqualTo(now.AddMinutes(30));
             RuleFor(t => t.Priority)
