@@ -106,6 +106,18 @@ namespace Infrastructure.Implement.Service
             };
         }
 
+        public async Task<ResponseResult<AccountVM>> GetAccountInformationAsync()
+        {
+            var currentUserId = claimService.GetCurrentUserId();
+            var account = await entityRepo.FindAsync(currentUserId)
+                ?? throw new UnauthorizedAccessException("You are not allowed to do this");
+            return new ResponseResult<AccountVM>
+            {
+                Data = account.Adapt<AccountVM>(),
+                IsSucceed = true
+            };
+        }
+
         public async Task<ResponseResult<AuthenticateResult>> RefreshTokenAsync(RefreshTokenRequest dto)
         {
             var cachedRefreshToken = await cacheService.GetAsync<string>(string.Format(CacheConstant.REFRESH_TOKEN_CACHE_ID, dto.UserId));

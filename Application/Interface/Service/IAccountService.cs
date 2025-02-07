@@ -12,5 +12,6 @@ namespace Application.Interface.Service
         Task<ResponseResult<AuthenticateResult>> RefreshTokenAsync(RefreshTokenRequest dto);
         Task<ResponseResult<AccountVM>> UpdateAccountAsync(AccountUpdateRequest dto);
         Task<ResponseResult<string>> ChangePasswordAsync(AccountChangePasswordRequest dto);
+        Task<ResponseResult<AccountVM>> GetAccountInformationAsync();
     }
 }

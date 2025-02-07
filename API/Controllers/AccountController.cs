@@ -11,6 +11,15 @@ namespace API.Controllers
     public class AccountController(IAccountService accountService) : BaseController
     {
         [ApiVersion(1)]
+        [HttpGet("detail")]
+        [Authorize]
+        public async Task<IActionResult> GetAccountInformationAsync()
+        {
+            var account = await accountService.GetAccountInformationAsync();
+            return Ok(account);
+        }
+
+        [ApiVersion(1)]
         [HttpPut]
         [Authorize]
         public async Task<IActionResult> UpdateAccountAsync([FromServices] IValidator<AccountUpdateRequest> validator,
