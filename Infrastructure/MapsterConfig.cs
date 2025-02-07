@@ -19,12 +19,12 @@ namespace Infrastructure
             TypeAdapterConfig<TaskCreateRequest, Tasks>
                 .NewConfig()
                 .Map(dest => dest.ExpiredAtUtc,
-                src => DateTime.SpecifyKind(src.ExpiredAt, DateTimeKind.Local).ToUniversalTime());
+                src => src.ExpiredAt.Kind == DateTimeKind.Utc ? src.ExpiredAt : DateTime.SpecifyKind(src.ExpiredAt, DateTimeKind.Local).ToUniversalTime());
 
             TypeAdapterConfig<TaskUpdateRequest, Tasks>
                 .NewConfig()
                 .Map(dest => dest.ExpiredAtUtc,
-                src => DateTime.SpecifyKind(src.ExpiredAt, DateTimeKind.Local).ToUniversalTime());
+                src => src.ExpiredAt.Kind == DateTimeKind.Utc ? src.ExpiredAt : DateTime.SpecifyKind(src.ExpiredAt, DateTimeKind.Local).ToUniversalTime());
 
             return services;
         }

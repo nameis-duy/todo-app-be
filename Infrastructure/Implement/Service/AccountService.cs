@@ -19,16 +19,19 @@ namespace Infrastructure.Implement.Service
         private readonly IOptions<JwtSetting> jwtSetting;
         private readonly ITimeService timeService;
         private readonly ICacheService cacheService;
+        private readonly IClaimService claimService;
 
         public AccountService(IGenericRepo<Account> entityRepo,
                               IUnitOfWork uow,
                               IOptions<JwtSetting> jwtSetting,
                               ITimeService timeService,
-                              ICacheService cacheService) : base(entityRepo, uow)
+                              ICacheService cacheService,
+                              IClaimService claimService) : base(entityRepo, uow)
         {
             this.jwtSetting = jwtSetting;
             this.timeService = timeService;
             this.cacheService = cacheService;
+            this.claimService = claimService;
         }
 
         public async Task<ResponseResult<AuthenticateResult>> AuthenticateAsync(AuthenticateRequest dto)
@@ -71,6 +74,35 @@ namespace Infrastructure.Implement.Service
             {
                 Message = "Incorrect email or password",
                 IsSucceed = false
+            };
+        }
+
+        public async Task<ResponseResult<string>> ChangePasswordAsync(AccountChangePasswordRequest dto)
+        {
+            var currentUserId = claimService.GetCurrentUserId();
+            var account = await entityRepo.FindAsync(currentUserId)
+                ?? throw new UnauthorizedAccessException("You are not allowed to do this");
+            var isValidPassword = dto.OldPassword.VerifyPassword(account.PasswordHash);
+            if (isValidPassword)
+            {
+                var newPasswordHash = dto.NewPassword.Hash();
+                account.PasswordHash = newPasswordHash;
+                entityRepo.Update(account);
+                if (await uow.SaveChangeAsync())
+                {
+                    return new ResponseResult<string>
+                    {
+                        Data = string.Empty,
+                        IsSucceed = true
+                    };
+                }
+                throw new DbUpdateException("Error while update account to db");
+            }
+            return new ResponseResult<string>
+            {
+                Data = string.Empty,
+                IsSucceed = false,
+                Message = "Password incorrect"
             };
         }
 
@@ -120,14 +152,12 @@ namespace Infrastructure.Implement.Service
             };
         }
 
-        //should we use transaction in this function...
         public async Task<ResponseResult<AccountVM>> RegisterAsync(RegisterRequest dto)
         {
             var account = dto.Adapt<Account>();
             account.PasswordHash = dto.Password.Hash();
-            await uow.BeginTransactionAsync();
             await entityRepo.AddAsync(account);
-            if (await uow.CommitTransactionAsync())
+            if (await uow.SaveChangeAsync())
             {
                 return new ResponseResult<AccountVM>
                 {
@@ -137,6 +167,25 @@ namespace Infrastructure.Implement.Service
                 };
             }
             throw new DbUpdateException("Error while create account to db");
+        }
+
+        public async Task<ResponseResult<AccountVM>> UpdateAccountAsync(AccountUpdateRequest dto)
+        {
+            var currentUserId = claimService.GetCurrentUserId();
+            var account = await entityRepo.FindAsync(currentUserId) 
+                ?? throw new UnauthorizedAccessException("You are not allowed to do this.");
+            dto.Adapt(account);
+            entityRepo.Update(account);
+            if (await uow.SaveChangeAsync())
+            {
+                return new ResponseResult<AccountVM>
+                {
+                    Data = account.Adapt<AccountVM>(),
+                    Message = "Succeed",
+                    IsSucceed = true,
+                };
+            };
+            throw new DbUpdateException("Error while update account to db");
         }
     }
 }

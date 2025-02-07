@@ -29,9 +29,8 @@ namespace Infrastructure.Implement.Service
             task.CreatedBy = currentUserId;
             if (currentUserId == -1) throw new UnauthorizedAccessException("You are not allowed to do this.");
 
-            await uow.BeginTransactionAsync();
             await entityRepo.AddAsync(task);
-            var isSucceed = await uow.CommitTransactionAsync();
+            var isSucceed = await uow.SaveChangeAsync();
             if (isSucceed) return new ResponseResult<TaskVM>
             {
                 Data = task.Adapt<TaskVM>(),
@@ -85,9 +84,8 @@ namespace Infrastructure.Implement.Service
             var task = await entityRepo.FindAsync(dto.Id);
             task!.IsRemoved = true;
 
-            await uow.BeginTransactionAsync();
             entityRepo.Update(task!);
-            var isSucceed = await uow.CommitTransactionAsync();
+            var isSucceed = await uow.SaveChangeAsync();
             if (isSucceed) return new ResponseResult<int>
             {
                 Data = task.Id,
@@ -101,9 +99,8 @@ namespace Infrastructure.Implement.Service
             var task = await entityRepo.FindAsync(dto.Id);
             dto.Adapt(task);
 
-            await uow.BeginTransactionAsync();
             entityRepo.Update(task!);
-            var isSucceed = await uow.CommitTransactionAsync();
+            var isSucceed = await uow.SaveChangeAsync();
             if (isSucceed) return new ResponseResult<TaskVM>
             {
                 Data = task.Adapt<TaskVM>(),
@@ -117,9 +114,8 @@ namespace Infrastructure.Implement.Service
             var task = await entityRepo.FindAsync(dto.Id);
             task!.Priority = dto.Priority;
 
-            await uow.BeginTransactionAsync();
             entityRepo.Update(task!);
-            var isSucceed = await uow.CommitTransactionAsync();
+            var isSucceed = await uow.SaveChangeAsync();
             if (isSucceed) return new ResponseResult<TaskVM>
             {
                 Data = task.Adapt<TaskVM>(),
@@ -133,9 +129,8 @@ namespace Infrastructure.Implement.Service
             var task = await entityRepo.FindAsync(dto.Id);
             task!.Status = dto.Status;
 
-            await uow.BeginTransactionAsync();
             entityRepo.Update(task!);
-            var isSucceed = await uow.CommitTransactionAsync();
+            var isSucceed = await uow.SaveChangeAsync();
             if (isSucceed) return new ResponseResult<TaskVM>
             {
                 Data = task.Adapt<TaskVM>(),

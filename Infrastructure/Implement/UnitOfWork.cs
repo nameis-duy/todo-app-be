@@ -32,5 +32,10 @@ namespace Infrastructure.Implement
         }
 
         public void Dispose() => context.Dispose();
+
+        public async Task<bool> SaveChangeAsync()
+        {
+            return await context.SaveChangesAsync() > 0;
+        }
     }
 }

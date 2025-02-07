@@ -80,7 +80,7 @@ namespace API.Controllers
                 return BadRequest(errors);
             }
             var result = await taskService.UpdateTaskAsync(dto);
-            if (result.IsSucceed is true) return Created(string.Empty, result);
+            if (result.IsSucceed is true) return Ok(result);
             return BadRequest();
         }
 
@@ -102,7 +102,7 @@ namespace API.Controllers
                 return BadRequest(errors);
             }
             var result = await taskService.UpdateTaskStatusAsync(dto);
-            if (result.IsSucceed is true) return Created(string.Empty, result);
+            if (result.IsSucceed is true) return Ok(result);
             return BadRequest();
         }
 
@@ -124,7 +124,7 @@ namespace API.Controllers
                 return BadRequest(errors);
             }
             var result = await taskService.UpdateTaskPriorityAsync(dto);
-            if (result.IsSucceed is true) return Created(string.Empty, result);
+            if (result.IsSucceed is true) return Ok(result);
             return BadRequest();
         }
 
@@ -147,7 +147,7 @@ namespace API.Controllers
                 return BadRequest(errors);
             }
             var result = await taskService.RemoveTaskAsync(dto);
-            if (result.IsSucceed is true) return Created(string.Empty, result);
+            if (result.IsSucceed is true) return Ok(result);
             return BadRequest();
         }
     }

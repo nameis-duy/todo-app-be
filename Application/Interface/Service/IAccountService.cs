@@ -10,5 +10,7 @@ namespace Application.Interface.Service
         Task<ResponseResult<AccountVM>> RegisterAsync(RegisterRequest dto);
         Task<ResponseResult<AuthenticateResult>> AuthenticateAsync(AuthenticateRequest dto);
         Task<ResponseResult<AuthenticateResult>> RefreshTokenAsync(RefreshTokenRequest dto);
+        Task<ResponseResult<AccountVM>> UpdateAccountAsync(AccountUpdateRequest dto);
+        Task<ResponseResult<string>> ChangePasswordAsync(AccountChangePasswordRequest dto);
     }
 }

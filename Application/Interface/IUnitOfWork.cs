@@ -4,5 +4,6 @@
     {
         Task BeginTransactionAsync();
         Task<bool> CommitTransactionAsync();
+        Task<bool> SaveChangeAsync();
     }
 }
