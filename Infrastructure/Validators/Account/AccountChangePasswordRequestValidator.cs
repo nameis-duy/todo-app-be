@@ -23,7 +23,7 @@ namespace Infrastructure.Validators.Account
                     var isValidPassword = password.VerifyPassword(account.PasswordHash);
                     if (isValidPassword is false)
                     {
-                        context.AddFailure("Password incorrect");
+                        context.AddFailure("Incorrect password");
                         return;
                     }
                 });
