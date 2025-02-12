@@ -1,5 +1,6 @@
 ﻿namespace Application.DTOs.Task
 {
+#pragma warning disable CS8618
     public class TaskVM
     {
         public int Id { get; set; }
