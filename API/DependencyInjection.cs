@@ -1,8 +1,6 @@
 ﻿using API.Middlewares;
 using Asp.Versioning;
 using Microsoft.OpenApi.Models;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace API
 {
@@ -10,11 +8,7 @@ namespace API
     {
         public static IServiceCollection AddAPIServices(this IServiceCollection services, WebApplicationBuilder builder)
         {
-            services.AddControllers()
-                .AddJsonOptions(opt =>
-                {
-                    opt.JsonSerializerOptions.Converters.Add(new UtcDateTimeConverter());
-                });
+            services.AddControllers();
             services
                 .AddRouting(opt => opt.LowercaseUrls = true)
                 .AddExceptionHandlerMiddle()
@@ -120,20 +114,6 @@ namespace API
             });
 
             return services;
-        }
-    }
-
-    public class UtcDateTimeConverter : JsonConverter<DateTime>
-    {
-        public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            var date = reader.GetDateTime();
-            return DateTime.SpecifyKind(date, DateTimeKind.Utc);
-        }
-
-        public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(value.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"));
         }
     }
 }

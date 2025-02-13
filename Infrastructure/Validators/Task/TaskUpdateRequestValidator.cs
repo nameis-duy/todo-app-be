@@ -25,19 +25,7 @@ namespace Infrastructure.Validators.Task
                 {
                     var task = await taskService.GetAll().FirstOrDefaultAsync(t => t.Id == dto.Id
                         && !t.IsRemoved, cancellationToken: ct);
-                    if (task != null)
-                    {
-                        if (dto.ExpiredAt.Kind == DateTimeKind.Local)
-                        {
-                            return task.ExpiredAtUtc != DateTime.SpecifyKind(dto.ExpiredAt, DateTimeKind.Local).ToUniversalTime();
-                        }
-
-                        if (dto.ExpiredAt.Kind == DateTimeKind.Utc)
-                        {
-                            return task.ExpiredAtUtc != dto.ExpiredAt;
-                        }
-                    }
-
+                    if (task != null) return task.ExpiredAt != dto.ExpiredAt;
                     return true;
                 });
             RuleFor(t => t.Priority)

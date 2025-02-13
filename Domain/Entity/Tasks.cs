@@ -9,9 +9,9 @@ namespace Domain.Entity
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        public DateTime CreatedAtUtc { get; }
-        public DateTime ModifiedAtUtc { get; }
-        public DateTime ExpiredAtUtc { get; set; }
+        public DateTimeOffset CreatedAt { get; }
+        public DateTimeOffset ModifiedAt { get; }
+        public DateTimeOffset ExpiredAt { get; set; }
         public Priority Priority { get; set; }
         public string Description { get; set; }
         public Status Status { get; set; }

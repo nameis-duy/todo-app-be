@@ -46,7 +46,7 @@ namespace Infrastructure.Implement.Service
                 && !t.IsRemoved)
                 .OrderBy(t => t.Status)
                 .ThenByDescending(t => t.Priority)
-                .ThenBy(t => t.CreatedAtUtc)
+                .ThenBy(t => t.CreatedAt)
                 .ToListAsync();
 
             return new ResponseResult<IEnumerable<TaskVM>>
