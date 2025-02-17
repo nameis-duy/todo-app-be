@@ -10,5 +10,6 @@ namespace Application.DTOs.Task
         public Priority Priority { get; set; }
         public string Description { get; set; }
         public Status Status { get; set; }
+        public string ImageUrl { get; set; }
     }
 }

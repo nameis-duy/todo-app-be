@@ -1,7 +1,6 @@
 ﻿using Application.DTOs.Task;
 using Application.Interface.Service;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Validators.Task
 {
@@ -15,11 +14,9 @@ namespace Infrastructure.Validators.Task
             RuleFor(t => t.Id)
                 .CustomAsync(async (id, context, ct) =>
                 {
-                    var isExistTask = await taskService.GetAll()
-                        .AnyAsync(t => t.Id == id
+                    var isExistTask = await taskService.FindAsync(t => t.Id == id
                         && !t.IsRemoved
-                        && t.CreatedBy == currentUserId,
-                        cancellationToken: ct);
+                        && t.CreatedBy == currentUserId) != null;
                     if (isExistTask is false)
                     {
                         context.AddFailure("Task does not exists");

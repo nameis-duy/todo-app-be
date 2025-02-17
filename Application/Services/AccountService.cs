@@ -6,49 +6,50 @@ using Application.Interface;
 using Application.Interface.Repository;
 using Application.Interface.Service;
 using Domain.Entity;
-using Infrastructure.ExtensionService;
-using Infrastructure.Security;
 using Mapster;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
-namespace Infrastructure.Implement.Service
+namespace Application.Services
 {
     public class AccountService : BaseService<Account>, IAccountService
     {
-        private readonly IOptions<JwtSetting> jwtSetting;
+        private readonly IAccountRepo accountRepo;
         private readonly ITimeService timeService;
         private readonly ICacheService cacheService;
         private readonly IClaimService claimService;
+        private readonly IJwtTokenGenerator jwtTokenGenerator;
+        private readonly IPasswordHelper passwordHelpher;
 
-        public AccountService(IGenericRepo<Account> entityRepo,
+        public AccountService(IAccountRepo accountRepo,
                               IUnitOfWork uow,
-                              IOptions<JwtSetting> jwtSetting,
                               ITimeService timeService,
                               ICacheService cacheService,
-                              IClaimService claimService) : base(entityRepo, uow)
+                              IClaimService claimService,
+                              IJwtTokenGenerator jwtTokenGenerator,
+                              IPasswordHelper passwordService) : base(accountRepo, uow)
         {
-            this.jwtSetting = jwtSetting;
+            this.accountRepo = accountRepo;
+            this.jwtTokenGenerator = jwtTokenGenerator;
             this.timeService = timeService;
             this.cacheService = cacheService;
             this.claimService = claimService;
+            this.passwordHelpher = passwordService;
         }
 
         public async Task<ResponseResult<AuthenticateResult>> AuthenticateAsync(AuthenticateRequest dto)
         {
-            var account = await entityRepo.GetAll().FirstOrDefaultAsync(a => a.Email.ToLower() == dto.Email.ToLower());
+            var account = await accountRepo.FirstOrDefaultAsync(a => a.Email.ToLower() == dto.Email.ToLower());
             if (account is not null)
             {
-                var isValidPassword = dto.Password.VerifyPassword(account.PasswordHash);
+                var isValidPassword = passwordHelpher.VerifyPassword(dto.Password, account.PasswordHash);
                 if (isValidPassword)
                 {
                     var now = timeService.GetCurrentLocalDateTime();
-                    var accessToken = account.GenerateToken(now, jwtSetting);
+                    var accessToken = jwtTokenGenerator.GenerateToken(account.Id, account.LastName, account.Email, now);
                     var refreshTokenMinutesValid = 60 * 24;//24 hours
 
                     var refreshTokenSecretKey = account.Email + "" + account.LastName;
-                    var hashedRefreshTokenSecreyKey = refreshTokenSecretKey.ComputeSha256Hash();
-                    var refreshToken = account.GenerateToken(now, jwtSetting,
+                    var hashedRefreshTokenSecreyKey = passwordHelpher.ComputeSha256Hash(refreshTokenSecretKey);
+                    var refreshToken = jwtTokenGenerator.GenerateToken(account.Id, account.LastName, account.Email, now,
                         hashedRefreshTokenSecreyKey,
                         minuteValid: refreshTokenMinutesValid);
 
@@ -80,14 +81,14 @@ namespace Infrastructure.Implement.Service
         public async Task<ResponseResult<string>> ChangePasswordAsync(AccountChangePasswordRequest dto)
         {
             var currentUserId = claimService.GetCurrentUserId();
-            var account = await entityRepo.FindAsync(currentUserId)
+            var account = await accountRepo.FirstOrDefaultAsync(acc => acc.Id == currentUserId)
                 ?? throw new UnauthorizedAccessException("You are not allowed to do this");
-            var isValidPassword = dto.OldPassword.VerifyPassword(account.PasswordHash);
+            var isValidPassword = passwordHelpher.VerifyPassword(dto.OldPassword, account.PasswordHash);
             if (isValidPassword)
             {
-                var newPasswordHash = dto.NewPassword.Hash();
+                var newPasswordHash = passwordHelpher.Hash(dto.NewPassword);
                 account.PasswordHash = newPasswordHash;
-                entityRepo.Update(account);
+                accountRepo.Update(account);
                 if (await uow.SaveChangeAsync())
                 {
                     return new ResponseResult<string>
@@ -96,7 +97,7 @@ namespace Infrastructure.Implement.Service
                         IsSucceed = true
                     };
                 }
-                throw new DbUpdateException("Error while update account to db");
+                throw new SystemException("Error while update account to db");
             }
             return new ResponseResult<string>
             {
@@ -109,7 +110,7 @@ namespace Infrastructure.Implement.Service
         public async Task<ResponseResult<AccountVM>> GetAccountInformationAsync()
         {
             var currentUserId = claimService.GetCurrentUserId();
-            var account = await entityRepo.FindAsync(currentUserId)
+            var account = await accountRepo.FirstOrDefaultAsync(acc => acc.Id == currentUserId)
                 ?? throw new UnauthorizedAccessException("You are not allowed to do this");
             return new ResponseResult<AccountVM>
             {
@@ -132,12 +133,12 @@ namespace Infrastructure.Implement.Service
                         LastName = dto.LastName,
                     };
                     var now = timeService.GetCurrentLocalDateTime();
-                    var accessToken = account.GenerateToken(now, jwtSetting);
+                    var accessToken = jwtTokenGenerator.GenerateToken(account.Id, account.LastName, account.Email, now);
                     var refreshTokenMinutesValid = 60 * 24;//expired after 24 hours
 
                     var refreshTokenSecretKey = account.Email + "" + account.LastName;
-                    var hashedRefreshTokenSecreyKey = refreshTokenSecretKey.ComputeSha256Hash();
-                    var refreshToken = account.GenerateToken(now, jwtSetting,
+                    var hashedRefreshTokenSecreyKey = passwordHelpher.ComputeSha256Hash(refreshTokenSecretKey);
+                    var refreshToken = jwtTokenGenerator.GenerateToken(account.Id, account.LastName, account.Email, now,
                         hashedRefreshTokenSecreyKey,
                         minuteValid: refreshTokenMinutesValid);
 
@@ -167,8 +168,8 @@ namespace Infrastructure.Implement.Service
         public async Task<ResponseResult<AccountVM>> RegisterAsync(RegisterRequest dto)
         {
             var account = dto.Adapt<Account>();
-            account.PasswordHash = dto.Password.Hash();
-            await entityRepo.AddAsync(account);
+            account.PasswordHash = passwordHelpher.Hash(dto.Password);
+            await accountRepo.AddAsync(account);
             if (await uow.SaveChangeAsync())
             {
                 return new ResponseResult<AccountVM>
@@ -178,16 +179,16 @@ namespace Infrastructure.Implement.Service
                     IsSucceed = true,
                 };
             }
-            throw new DbUpdateException("Error while create account to db");
+            throw new SystemException("Error while create account to db");
         }
 
         public async Task<ResponseResult<AccountVM>> UpdateAccountAsync(AccountUpdateRequest dto)
         {
             var currentUserId = claimService.GetCurrentUserId();
-            var account = await entityRepo.FindAsync(currentUserId) 
+            var account = await accountRepo.FirstOrDefaultAsync(acc => acc.Id == currentUserId)
                 ?? throw new UnauthorizedAccessException("You are not allowed to do this.");
             dto.Adapt(account);
-            entityRepo.Update(account);
+            accountRepo.Update(account);
             if (await uow.SaveChangeAsync())
             {
                 return new ResponseResult<AccountVM>
@@ -197,7 +198,7 @@ namespace Infrastructure.Implement.Service
                     IsSucceed = true,
                 };
             };
-            throw new DbUpdateException("Error while update account to db");
+            throw new SystemException("Error while update account to db");
         }
     }
 }

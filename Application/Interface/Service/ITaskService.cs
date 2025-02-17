@@ -8,7 +8,7 @@ namespace Application.Interface.Service
     public interface ITaskService : IBaseService<Tasks>
     {
         Task<ResponseResult<TaskVM?>> GetTaskById(int id);
-        Task<ResponseResult<IEnumerable<TaskVM>>> GetAllTasks();
+        Task<ResponseResult<IEnumerable<TaskVM>>> GetAllTasksAsync();
         Task<Pagination<TaskVM>> GetPageAsync(int pageIndex = 0, int pageSize = 10);
         Task<ResponseResult<TaskVM>> CreateTaskAsync(TaskCreateRequest dto);
         Task<ResponseResult<TaskVM>> UpdateTaskAsync(TaskUpdateRequest dto);

@@ -1,10 +1,11 @@
 ﻿using Application.Interface;
 using Application.Interface.Repository;
 using Application.Interface.Service;
+using Application.Services;
 using FluentValidation;
+using Infrastructure.ExtensionService;
 using Infrastructure.Implement;
 using Infrastructure.Implement.Repository;
-using Infrastructure.Implement.Service;
 using Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -29,14 +30,9 @@ namespace Infrastructure
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
-            services.AddScoped<ITimeService, TimeService>();
-            services.AddScoped<IClaimService, ClaimService>();
-
-            services.AddScoped(typeof(IBaseService<>), typeof(BaseService<>));
-            services.AddScoped<IAccountService, AccountService>();
-            services.AddScoped<ITaskService, TaskService>();
+            services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped<ICacheService, CacheService>();
-            services.AddScoped<IEnumService, EnumService>();
+            services.AddScoped<IPasswordHelper, PasswordHelper>();
 
             return services;
         }

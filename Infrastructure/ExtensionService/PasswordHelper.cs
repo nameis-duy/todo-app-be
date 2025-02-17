@@ -1,22 +1,23 @@
-﻿using BCrypt.Net;
+﻿using Application.Interface.Service;
+using BCrypt.Net;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace Infrastructure.ExtensionService
 {
-    public static class StringUtils
+    public class PasswordHelper : IPasswordHelper
     {
-        public static string Hash(this string password, HashType type = HashType.SHA512)
+        public string Hash(string password, HashType type = HashType.SHA512)
         {
             return BCrypt.Net.BCrypt.EnhancedHashPassword(password, type);
         }
 
-        public static bool VerifyPassword(this string password, string passwordHash, HashType type = HashType.SHA512)
+        public bool VerifyPassword(string password, string passwordHash, HashType type = HashType.SHA512)
         {
             return BCrypt.Net.BCrypt.EnhancedVerify(password, passwordHash, type);
         }
 
-        public static string ComputeSha256Hash(this string rawData)
+        public string ComputeSha256Hash(string rawData)
         {
             // Create a SHA256
             using (SHA256 sha256Hash = SHA256.Create())

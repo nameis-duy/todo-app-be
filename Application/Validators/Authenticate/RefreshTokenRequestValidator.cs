@@ -3,7 +3,7 @@ using Application.DTOs.Authenticate;
 using Application.Interface.Service;
 using FluentValidation;
 
-namespace Infrastructure.Validators.Authenticate
+namespace Application.Validators.Authenticate
 {
     public class RefreshTokenRequestValidator : AbstractValidator<RefreshTokenRequest>
     {

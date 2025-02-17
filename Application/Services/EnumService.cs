@@ -1,7 +1,7 @@
 ﻿using Application.Interface.Service;
 using Domain.Enum.Task;
 
-namespace Infrastructure.Implement.Service
+namespace Application.Services
 {
     public class EnumService : IEnumService
     {

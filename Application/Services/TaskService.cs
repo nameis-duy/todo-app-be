@@ -6,19 +6,20 @@ using Application.Interface.Service;
 using Application.Others;
 using Domain.Entity;
 using Mapster;
-using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Implement.Service
+namespace Application.Services
 {
     public class TaskService : BaseService<Tasks>, ITaskService
     {
+        private readonly ITaskRepo taskRepo;
         private readonly IClaimService claimService;
         private readonly int currentUserId;
 
-        public TaskService(IGenericRepo<Tasks> entityRepo,
+        public TaskService(ITaskRepo taskRepo,
                            IUnitOfWork uow,
-                           IClaimService claimService) : base(entityRepo, uow)
+                           IClaimService claimService) : base(taskRepo, uow)
         {
+            this.taskRepo = taskRepo;
             this.claimService = claimService;
             currentUserId = claimService.GetCurrentUserId();
         }
@@ -29,25 +30,25 @@ namespace Infrastructure.Implement.Service
             task.CreatedBy = currentUserId;
             if (currentUserId == -1) throw new UnauthorizedAccessException("You are not allowed to do this.");
 
-            await entityRepo.AddAsync(task);
+            await taskRepo.AddAsync(task);
             var isSucceed = await uow.SaveChangeAsync();
             if (isSucceed) return new ResponseResult<TaskVM>
             {
                 Data = task.Adapt<TaskVM>(),
                 IsSucceed = isSucceed,
             };
-            throw new DbUpdateException("Create tasks failed. Server error.");
+            throw new SystemException("Create tasks failed. Server error.");
         }
 
-        public async Task<ResponseResult<IEnumerable<TaskVM>>> GetAllTasks()
+        public async Task<ResponseResult<IEnumerable<TaskVM>>> GetAllTasksAsync()
         {
-            var tasks = await entityRepo.GetAll()
-                .Where(t => t.CreatedBy == currentUserId
-                && !t.IsRemoved)
-                .OrderBy(t => t.Status)
-                .ThenByDescending(t => t.Priority)
-                .ThenBy(t => t.CreatedAt)
-                .ToListAsync();
+            var tasks = await taskRepo.GetAllAsync();
+            //.Where(t => t.CreatedBy == currentUserId
+            //&& !t.IsRemoved)
+            //.OrderBy(t => t.Status)
+            //.ThenByDescending(t => t.Priority)
+            //.ThenBy(t => t.CreatedAt)
+            //.ToListAsync();
 
             return new ResponseResult<IEnumerable<TaskVM>>
             {
@@ -58,7 +59,7 @@ namespace Infrastructure.Implement.Service
 
         public async Task<Pagination<TaskVM>> GetPageAsync(int pageIndex = 0, int pageSize = 10)
         {
-            var tasksPage = await entityRepo.GetPageAsync(pageIndex, pageSize,
+            var tasksPage = await taskRepo.GetPageAsync(pageIndex, pageSize,
                 t => t.CreatedBy == currentUserId
                 && !t.IsRemoved);
 
@@ -67,8 +68,7 @@ namespace Infrastructure.Implement.Service
 
         public async Task<ResponseResult<TaskVM?>> GetTaskById(int id)
         {
-            var task = await entityRepo.GetAll()
-                .FirstOrDefaultAsync(t => t.Id == id
+            var task = await taskRepo.FirstOrDefaultAsync(t => t.Id == id
                 && !t.IsRemoved
                 && t.CreatedBy == currentUserId);
 
@@ -81,62 +81,62 @@ namespace Infrastructure.Implement.Service
 
         public async Task<ResponseResult<int>> RemoveTaskAsync(TaskRemoveRequest dto)
         {
-            var task = await entityRepo.FindAsync(dto.Id);
+            var task = await taskRepo.FirstOrDefaultAsync(t => dto.Id == t.Id);
             task!.IsRemoved = true;
 
-            entityRepo.Update(task!);
+            taskRepo.Update(task!);
             var isSucceed = await uow.SaveChangeAsync();
             if (isSucceed) return new ResponseResult<int>
             {
                 Data = task.Id,
                 IsSucceed = isSucceed,
             };
-            throw new DbUpdateException("Update tasks failed. Server error.");
+            throw new SystemException("Update tasks failed. Server error.");
         }
 
         public async Task<ResponseResult<TaskVM>> UpdateTaskAsync(TaskUpdateRequest dto)
         {
-            var task = await entityRepo.FindAsync(dto.Id);
+            var task = await taskRepo.FirstOrDefaultAsync(t => dto.Id == t.Id);
             dto.Adapt(task);
 
-            entityRepo.Update(task!);
+            taskRepo.Update(task!);
             var isSucceed = await uow.SaveChangeAsync();
             if (isSucceed) return new ResponseResult<TaskVM>
             {
                 Data = task.Adapt<TaskVM>(),
                 IsSucceed = isSucceed,
             };
-            throw new DbUpdateException("Update tasks failed. Server error.");
+            throw new SystemException("Update tasks failed. Server error.");
         }
 
         public async Task<ResponseResult<TaskVM>> UpdateTaskPriorityAsync(TaskChangePriorityRequest dto)
         {
-            var task = await entityRepo.FindAsync(dto.Id);
+            var task = await taskRepo.FirstOrDefaultAsync(t => dto.Id == t.Id);
             task!.Priority = dto.Priority;
 
-            entityRepo.Update(task!);
+            taskRepo.Update(task!);
             var isSucceed = await uow.SaveChangeAsync();
             if (isSucceed) return new ResponseResult<TaskVM>
             {
                 Data = task.Adapt<TaskVM>(),
                 IsSucceed = isSucceed,
             };
-            throw new DbUpdateException("Update tasks failed. Server error.");
+            throw new SystemException("Update tasks failed. Server error.");
         }
 
         public async Task<ResponseResult<TaskVM>> UpdateTaskStatusAsync(TaskChangeStatusRequest dto)
         {
-            var task = await entityRepo.FindAsync(dto.Id);
+            var task = await taskRepo.FirstOrDefaultAsync(t => dto.Id == t.Id);
             task!.Status = dto.Status;
 
-            entityRepo.Update(task!);
+            taskRepo.Update(task!);
             var isSucceed = await uow.SaveChangeAsync();
             if (isSucceed) return new ResponseResult<TaskVM>
             {
                 Data = task.Adapt<TaskVM>(),
                 IsSucceed = isSucceed,
             };
-            throw new DbUpdateException("Update tasks failed. Server error.");
+            throw new SystemException("Update tasks failed. Server error.");
         }
     }
 }

@@ -17,15 +17,15 @@ namespace Infrastructure.Implement.Repository
             context.Set<TEntity>().Remove(entity);
         }
 
-        public async Task<TEntity?> FindAsync(params object[] keys)
+        public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return await context.Set<TEntity>().FindAsync(keys);
+            return await context.Set<TEntity>().FirstOrDefaultAsync(predicate);
         }
 
-        public IQueryable<TEntity> GetAll(bool isTracking = false)
+        public async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null)
         {
-            if (isTracking) return context.Set<TEntity>();
-            return context.Set<TEntity>().AsNoTracking();
+            if (predicate is null) return await context.Set<TEntity>().ToListAsync();
+            return await context.Set<TEntity>().Where(predicate).ToListAsync();
         }
 
         public async Task<Pagination<TEntity>> GetPageAsync(int pageIndex,

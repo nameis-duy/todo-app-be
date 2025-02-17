@@ -1,10 +1,12 @@
 using API;
+using Application;
 using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddAPIServices(builder)
+    .AddApplication()
     .AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();

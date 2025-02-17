@@ -15,7 +15,7 @@ namespace API.Controllers
         [Authorize]
         public async Task<IActionResult> GetAllAsync()
         {
-            var tasks = await taskService.GetAllTasks();
+            var tasks = await taskService.GetAllTasksAsync();
             return Ok(tasks);
         }
 

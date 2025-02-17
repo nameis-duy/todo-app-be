@@ -5,10 +5,6 @@ using Application.Interface;
 using Application.Interface.Repository;
 using Application.Interface.Service;
 using Domain.Entity;
-using FluentValidation;
-using Infrastructure.ExtensionService;
-using Infrastructure.Implement.Repository;
-using Infrastructure.Implement.Service;
 using Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -54,7 +50,7 @@ namespace Application.UnitTests.Services
         {
             //Arrange
             mockClaimService.Setup(claimService => claimService.GetCurrentUserId()).Returns(mockAccountData.Id);
-            mockAccountRepo.Setup(repo => repo.FindAsync(mockAccountData.Id)).ReturnsAsync(mockAccountData);
+            mockAccountRepo.Setup(repo => repo.FirstOrDefaultAsync(mockAccountData.Id)).ReturnsAsync(mockAccountData);
 
             //Act
             var result = await accountService.GetAccountInformationAsync();
@@ -71,7 +67,7 @@ namespace Application.UnitTests.Services
         {
             //Arrange
             mockClaimService.Setup(claimService => claimService.GetCurrentUserId()).Returns(-1);
-            mockAccountRepo.Setup(repo => repo.FindAsync(mockAccountData.Id)).ReturnsAsync((Account?)null);
+            mockAccountRepo.Setup(repo => repo.FirstOrDefaultAsync(mockAccountData.Id)).ReturnsAsync((Account?)null);
 
             //Act
             await Assert.ThrowsAsync<UnauthorizedAccessException>(accountService.GetAccountInformationAsync);
@@ -148,7 +144,7 @@ namespace Application.UnitTests.Services
             //Arrange
             var accountUpdateRequestDto = new AccountUpdateRequest();
             mockClaimService.Setup(claimService => claimService.GetCurrentUserId()).Returns(mockAccountData.Id);
-            mockAccountRepo.Setup(repo => repo.FindAsync(mockAccountData.Id)).ReturnsAsync(mockAccountData);
+            mockAccountRepo.Setup(repo => repo.FirstOrDefaultAsync(mockAccountData.Id)).ReturnsAsync(mockAccountData);
             mockAccountRepo.Setup(repo => repo.Update(mockAccountData)).Verifiable();
             mockUnitOfWork.Setup(repo => repo.SaveChangeAsync()).ReturnsAsync(true);
 
@@ -172,7 +168,7 @@ namespace Application.UnitTests.Services
             //Arrange
             var accountUpdateRequestDto = new AccountUpdateRequest();
             mockClaimService.Setup(claimService => claimService.GetCurrentUserId()).Returns(-1);
-            mockAccountRepo.Setup(repo => repo.FindAsync(mockAccountData.Id)).ReturnsAsync((Account?)null);
+            mockAccountRepo.Setup(repo => repo.FirstOrDefaultAsync(mockAccountData.Id)).ReturnsAsync((Account?)null);
 
             //Act & Assert
             await Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await accountService.UpdateAccountAsync(accountUpdateRequestDto));
@@ -184,7 +180,7 @@ namespace Application.UnitTests.Services
             //Arrange
             var accountUpdateRequestDto = new AccountUpdateRequest();
             mockClaimService.Setup(claimService => claimService.GetCurrentUserId()).Returns(mockAccountData.Id);
-            mockAccountRepo.Setup(repo => repo.FindAsync(mockAccountData.Id)).ReturnsAsync(mockAccountData);
+            mockAccountRepo.Setup(repo => repo.FirstOrDefaultAsync(mockAccountData.Id)).ReturnsAsync(mockAccountData);
             mockAccountRepo.Setup(repo => repo.Update(mockAccountData)).Verifiable();
             mockUnitOfWork.Setup(repo => repo.SaveChangeAsync()).ReturnsAsync(false);
 
@@ -200,7 +196,7 @@ namespace Application.UnitTests.Services
             //Arrange
             var changePassRequestDto = new AccountChangePasswordRequest() { OldPassword = "123123", NewPassword = "123123123" };
             mockClaimService.Setup(claimService => claimService.GetCurrentUserId()).Returns(mockAccountData.Id);
-            mockAccountRepo.Setup(repo => repo.FindAsync(mockAccountData.Id)).ReturnsAsync(mockAccountData);
+            mockAccountRepo.Setup(repo => repo.FirstOrDefaultAsync(mockAccountData.Id)).ReturnsAsync(mockAccountData);
             mockAccountRepo.Setup(repo => repo.Update(mockAccountData)).Verifiable();
             mockUnitOfWork.Setup(uow => uow.SaveChangeAsync()).ReturnsAsync(true);
 
@@ -222,7 +218,7 @@ namespace Application.UnitTests.Services
             //Arrange
             var changePassRequestDto = new AccountChangePasswordRequest();
             mockClaimService.Setup(claimService => claimService.GetCurrentUserId()).Returns(-1);
-            mockAccountRepo.Setup(repo => repo.FindAsync(It.IsAny<int>())).ReturnsAsync((Account?)null);
+            mockAccountRepo.Setup(repo => repo.FirstOrDefaultAsync(It.IsAny<int>())).ReturnsAsync((Account?)null);
 
             //Act & Assert
             await Assert.ThrowsAsync<UnauthorizedAccessException>(async () => await accountService.ChangePasswordAsync(changePassRequestDto));
@@ -234,7 +230,7 @@ namespace Application.UnitTests.Services
             //Arrange
             var changePassRequestDto = new AccountChangePasswordRequest() { OldPassword = "123123", NewPassword = "123123123" };
             mockClaimService.Setup(claimService => claimService.GetCurrentUserId()).Returns(mockAccountData.Id);
-            mockAccountRepo.Setup(repo => repo.FindAsync(mockAccountData.Id)).ReturnsAsync(mockAccountData);
+            mockAccountRepo.Setup(repo => repo.FirstOrDefaultAsync(mockAccountData.Id)).ReturnsAsync(mockAccountData);
             mockAccountRepo.Setup(repo => repo.Update(mockAccountData)).Verifiable();
             mockUnitOfWork.Setup(uow => uow.SaveChangeAsync()).ReturnsAsync(false);
 
@@ -248,7 +244,7 @@ namespace Application.UnitTests.Services
             //Arrange
             var changePassRequestDto = new AccountChangePasswordRequest() { OldPassword = "123" };
             mockClaimService.Setup(claimService => claimService.GetCurrentUserId()).Returns(mockAccountData.Id);
-            mockAccountRepo.Setup(repo => repo.FindAsync(mockAccountData.Id)).ReturnsAsync(mockAccountData);
+            mockAccountRepo.Setup(repo => repo.FirstOrDefaultAsync(mockAccountData.Id)).ReturnsAsync(mockAccountData);
 
             //Act
             var result = await accountService.ChangePasswordAsync(changePassRequestDto);

@@ -9,5 +9,6 @@ namespace Application.DTOs.Task
         public DateTimeOffset ExpiredAt { get; set; }
         public Priority Priority { get; set; }
         public string Description { get; set; }
+        public string ImageUrl { get; set; }
     }
 }

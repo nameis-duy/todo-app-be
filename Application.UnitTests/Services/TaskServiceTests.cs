@@ -1,16 +1,15 @@
-﻿using Application.Interface.Repository;
-using Application.Interface.Service;
+﻿using Application.DTOs.Base;
+using Application.DTOs.Task;
 using Application.Interface;
+using Application.Interface.Repository;
+using Application.Interface.Service;
+using Application.Others;
 using Domain.Entity;
 using Domain.Enum.Task;
-using Infrastructure.Implement.Service;
-using Moq;
-using Application.DTOs.Base;
-using Application.DTOs.Task;
-using MockQueryable.Moq;
-using Microsoft.EntityFrameworkCore;
 using Mapster;
-using Application.Others;
+using Microsoft.EntityFrameworkCore;
+using MockQueryable.Moq;
+using Moq;
 using System.Linq.Expressions;
 
 namespace Application.UnitTests.Services
@@ -79,7 +78,7 @@ namespace Application.UnitTests.Services
             mockTaskRepo.Setup(repo => repo.GetAll(false)).Returns(mockTaskListQueryable.Object);
 
             //Act
-            var result = await taskService.GetAllTasks();
+            var result = await taskService.GetAllTasksAsync();
 
             //Assert
             Assert.IsType<ResponseResult<IEnumerable<TaskVM>>>(result);
@@ -98,7 +97,7 @@ namespace Application.UnitTests.Services
             mockTaskRepo.Setup(repo => repo.GetAll(false)).Returns(mockEmptyTaskList.Object);
 
             //Act
-            var result = await taskService.GetAllTasks();
+            var result = await taskService.GetAllTasksAsync();
 
             //Assert
             Assert.IsType<ResponseResult<IEnumerable<TaskVM>>>(result);
@@ -122,7 +121,7 @@ namespace Application.UnitTests.Services
             mockTaskRepo.Setup(repo => repo.GetAll(false)).Returns(mockManyTaskList.Object);
 
             //Act
-            var result = await taskService.GetAllTasks();
+            var result = await taskService.GetAllTasksAsync();
 
             //Assert
             var taskResult = result.Data!.ToList();
@@ -279,7 +278,7 @@ namespace Application.UnitTests.Services
         {
             //Arrange
             var taskUpdateDto = new TaskUpdateRequest() { Id = MockTask.Id, Title = "New Title" };
-            mockTaskRepo.Setup(repo => repo.FindAsync(taskUpdateDto.Id)).ReturnsAsync(MockTask);
+            mockTaskRepo.Setup(repo => repo.FirstOrDefaultAsync(taskUpdateDto.Id)).ReturnsAsync(MockTask);
             mockTaskRepo.Setup(repo => repo.Update(MockTask)).Verifiable();
             uowMock.Setup(uow => uow.SaveChangeAsync()).ReturnsAsync(true);
 
@@ -287,7 +286,7 @@ namespace Application.UnitTests.Services
             var result = await taskService.UpdateTaskAsync(taskUpdateDto);
 
             //Assert
-            mockTaskRepo.Verify(repo => repo.FindAsync(taskUpdateDto.Id), Times.Once);
+            mockTaskRepo.Verify(repo => repo.FirstOrDefaultAsync(taskUpdateDto.Id), Times.Once);
             mockTaskRepo.Verify(repo => repo.Update(MockTask), Times.Once);
             uowMock.Verify(repo => repo.SaveChangeAsync(), Times.Once);
 
@@ -303,7 +302,7 @@ namespace Application.UnitTests.Services
         {
             //Arrange
             var taskUpdateDto = new TaskUpdateRequest() { Id = MockTask.Id };
-            mockTaskRepo.Setup(repo => repo.FindAsync(taskUpdateDto.Id)).ReturnsAsync(MockTask);
+            mockTaskRepo.Setup(repo => repo.FirstOrDefaultAsync(taskUpdateDto.Id)).ReturnsAsync(MockTask);
             mockTaskRepo.Setup(repo => repo.Update(MockTask)).Verifiable();
             uowMock.Setup(uow => uow.SaveChangeAsync()).ReturnsAsync(false);
 
@@ -318,7 +317,7 @@ namespace Application.UnitTests.Services
         {
             //Arrange
             var taskChangePriorityRequestDto = new TaskChangePriorityRequest() { Id = MockTask.Id, Priority = Priority.High };
-            mockTaskRepo.Setup(repo => repo.FindAsync(taskChangePriorityRequestDto.Id)).ReturnsAsync(MockTask);
+            mockTaskRepo.Setup(repo => repo.FirstOrDefaultAsync(taskChangePriorityRequestDto.Id)).ReturnsAsync(MockTask);
             mockTaskRepo.Setup(repo => repo.Update(MockTask)).Verifiable();
             uowMock.Setup(uow => uow.SaveChangeAsync()).ReturnsAsync(true);
 
@@ -326,7 +325,7 @@ namespace Application.UnitTests.Services
             var result = await taskService.UpdateTaskPriorityAsync(taskChangePriorityRequestDto);
 
             //Assert
-            mockTaskRepo.Verify(repo => repo.FindAsync(taskChangePriorityRequestDto.Id), Times.Once);
+            mockTaskRepo.Verify(repo => repo.FirstOrDefaultAsync(taskChangePriorityRequestDto.Id), Times.Once);
             mockTaskRepo.Verify(repo => repo.Update(MockTask), Times.Once);
             uowMock.Verify(repo => repo.SaveChangeAsync(), Times.Once);
 
@@ -342,7 +341,7 @@ namespace Application.UnitTests.Services
         {
             //Arrange
             var taskChangePriorityRequestDto = new TaskChangePriorityRequest() { Id = MockTask.Id, Priority = Priority.High };
-            mockTaskRepo.Setup(repo => repo.FindAsync(taskChangePriorityRequestDto.Id)).ReturnsAsync(MockTask);
+            mockTaskRepo.Setup(repo => repo.FirstOrDefaultAsync(taskChangePriorityRequestDto.Id)).ReturnsAsync(MockTask);
             mockTaskRepo.Setup(repo => repo.Update(MockTask)).Verifiable();
             uowMock.Setup(uow => uow.SaveChangeAsync()).ReturnsAsync(false);
 
@@ -357,7 +356,7 @@ namespace Application.UnitTests.Services
         {
             //Arrange
             var taskChangeStatusRequestDto = new TaskChangeStatusRequest() { Id = MockTask.Id, Status = Status.Completed };
-            mockTaskRepo.Setup(repo => repo.FindAsync(taskChangeStatusRequestDto.Id)).ReturnsAsync(MockTask);
+            mockTaskRepo.Setup(repo => repo.FirstOrDefaultAsync(taskChangeStatusRequestDto.Id)).ReturnsAsync(MockTask);
             mockTaskRepo.Setup(repo => repo.Update(MockTask)).Verifiable();
             uowMock.Setup(uow => uow.SaveChangeAsync()).ReturnsAsync(true);
 
@@ -365,7 +364,7 @@ namespace Application.UnitTests.Services
             var result = await taskService.UpdateTaskStatusAsync(taskChangeStatusRequestDto);
 
             //Assert
-            mockTaskRepo.Verify(repo => repo.FindAsync(taskChangeStatusRequestDto.Id), Times.Once);
+            mockTaskRepo.Verify(repo => repo.FirstOrDefaultAsync(taskChangeStatusRequestDto.Id), Times.Once);
             mockTaskRepo.Verify(repo => repo.Update(MockTask), Times.Once);
             uowMock.Verify(repo => repo.SaveChangeAsync(), Times.Once);
 
@@ -381,7 +380,7 @@ namespace Application.UnitTests.Services
         {
             //Arrange
             var taskChangeStatusRequestDto = new TaskChangeStatusRequest() { Id = MockTask.Id, Status = Status.Completed };
-            mockTaskRepo.Setup(repo => repo.FindAsync(taskChangeStatusRequestDto.Id)).ReturnsAsync(MockTask);
+            mockTaskRepo.Setup(repo => repo.FirstOrDefaultAsync(taskChangeStatusRequestDto.Id)).ReturnsAsync(MockTask);
             mockTaskRepo.Setup(repo => repo.Update(MockTask)).Verifiable();
             uowMock.Setup(uow => uow.SaveChangeAsync()).ReturnsAsync(false);
 
@@ -396,7 +395,7 @@ namespace Application.UnitTests.Services
         {
             //Arrange
             var taskRemoveRequestDto = new TaskRemoveRequest() { Id = MockTask.Id };
-            mockTaskRepo.Setup(repo => repo.FindAsync(taskRemoveRequestDto.Id)).ReturnsAsync(MockTask);
+            mockTaskRepo.Setup(repo => repo.FirstOrDefaultAsync(taskRemoveRequestDto.Id)).ReturnsAsync(MockTask);
             mockTaskRepo.Setup(repo => repo.Update(MockTask)).Verifiable();
             uowMock.Setup(uow => uow.SaveChangeAsync()).ReturnsAsync(true);
 
@@ -404,7 +403,7 @@ namespace Application.UnitTests.Services
             var result = await taskService.RemoveTaskAsync(taskRemoveRequestDto);
 
             //Assert
-            mockTaskRepo.Verify(repo => repo.FindAsync(taskRemoveRequestDto.Id), Times.Once);
+            mockTaskRepo.Verify(repo => repo.FirstOrDefaultAsync(taskRemoveRequestDto.Id), Times.Once);
             mockTaskRepo.Verify(repo => repo.Update(MockTask), Times.Once);
             uowMock.Verify(repo => repo.SaveChangeAsync(), Times.Once);
 
@@ -418,7 +417,7 @@ namespace Application.UnitTests.Services
         {
             //Arrange
             var taskRemoveRequestDto = new TaskRemoveRequest() { Id = MockTask.Id };
-            mockTaskRepo.Setup(repo => repo.FindAsync(taskRemoveRequestDto.Id)).ReturnsAsync(MockTask);
+            mockTaskRepo.Setup(repo => repo.FirstOrDefaultAsync(taskRemoveRequestDto.Id)).ReturnsAsync(MockTask);
             mockTaskRepo.Setup(repo => repo.Update(MockTask)).Verifiable();
             uowMock.Setup(uow => uow.SaveChangeAsync()).ReturnsAsync(false);
 

@@ -1,10 +1,8 @@
 ﻿using Application.Constant;
 using Application.DTOs.Account;
-using Application.Interface.Service;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Validators.Account
+namespace Application.Validators.Account
 {
     public class AccountUpdateRequestValidator : AbstractValidator<AccountUpdateRequest>
     {

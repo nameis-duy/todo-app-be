@@ -1,4 +1,4 @@
-﻿using Domain.Entity;
+﻿using Application.Interface.Service;
 using Infrastructure.Security;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -8,34 +8,32 @@ using System.Text;
 
 namespace Infrastructure.ExtensionService
 {
-    public static class JwtUtils
+    public class JwtTokenGenerator(IOptions<JwtSetting> tokenSetting, ITimeService timeService) : IJwtTokenGenerator
     {
-        public static string GenerateToken(this Account account,
-            DateTime now,
-                                           IOptions<JwtSetting> setting,
-                                           string? secretKey = null,
-                                           int? minuteValid = null)
+        public string GenerateToken(int id, string name, string email, DateTime? now,
+            string? secretKey = null, int? minuteValid = null)
         {
-            var jwtSetting = setting.Value;
+            var jwtSetting = tokenSetting.Value;
+            now ??= timeService.GetCurrentLocalDateTime();
             var key = Encoding.UTF8.GetBytes(secretKey ?? jwtSetting.Key);
             var securityKey = new SymmetricSecurityKey(key);
             var credentials = new SigningCredentials(securityKey,
                                                      SecurityAlgorithms.HmacSha256Signature);
-            var claims = GenerateClaims(account);
+            var claims = GenerateClaims(id, name, email);
             var token = new JwtSecurityToken(jwtSetting.Issuer,
                                              jwtSetting.Audience,
                                              claims,
-                                             expires: now.AddMinutes(minuteValid ?? jwtSetting.TokenExpirationMinutes),
+                                             expires: now.Value.AddMinutes(minuteValid ?? jwtSetting.TokenExpirationMinutes),
                                              signingCredentials: credentials);
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        private static IEnumerable<Claim> GenerateClaims(Account account)
+        private IEnumerable<Claim> GenerateClaims(int id, string name, string email)
         {
             IEnumerable<Claim> claims = [
-                new Claim(ClaimTypes.Name, account.LastName),
-                new Claim(ClaimTypes.Email, account.Email),
-                new Claim("Id", account.Id.ToString())
+                new Claim(ClaimTypes.Name, name),
+                new Claim(ClaimTypes.Email, email),
+                new Claim("Id", id.ToString())
                 ];
             return claims;
         }

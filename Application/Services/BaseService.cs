@@ -1,13 +1,14 @@
 ﻿using Application.Interface;
 using Application.Interface.Repository;
 using Application.Interface.Service;
+using System.Linq.Expressions;
 
-namespace Infrastructure.Implement.Service
+namespace Application.Services
 {
     public class BaseService<TEntity> : IBaseService<TEntity> where TEntity : class
     {
-        protected readonly IGenericRepo<TEntity> entityRepo;
         protected readonly IUnitOfWork uow;
+        private readonly IGenericRepo<TEntity> entityRepo;
 
         public BaseService(IGenericRepo<TEntity> entityRepo, IUnitOfWork uow)
         {
@@ -15,14 +16,14 @@ namespace Infrastructure.Implement.Service
             this.uow = uow;
         }
 
-        public async Task<TEntity?> FindAsync(params object[] keys)
+        public async Task<TEntity?> FindAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return await entityRepo.FindAsync(keys);
+            return await entityRepo.FirstOrDefaultAsync(predicate);
         }
 
-        public IQueryable<TEntity> GetAll(bool isTracking = false)
+        public async Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? predicate = null)
         {
-            return entityRepo.GetAll(isTracking);
+            return await entityRepo.GetAllAsync(predicate);
         }
     }
 }

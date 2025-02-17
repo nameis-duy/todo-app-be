@@ -1,7 +1,6 @@
 ﻿using Application.DTOs.Task;
 using Application.Interface.Service;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Validators.Task
 {
@@ -23,8 +22,8 @@ namespace Infrastructure.Validators.Task
                 .GreaterThanOrEqualTo(now.AddMinutes(30))
                 .WhenAsync(async (dto, context, ct) =>
                 {
-                    var task = await taskService.GetAll().FirstOrDefaultAsync(t => t.Id == dto.Id
-                        && !t.IsRemoved, cancellationToken: ct);
+                    var task = await taskService.FindAsync(t => t.Id == dto.Id
+                        && !t.IsRemoved);
                     if (task != null) return task.ExpiredAt != dto.ExpiredAt;
                     return true;
                 });

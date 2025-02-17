@@ -1,9 +1,8 @@
 ﻿using Application.DTOs.Authenticate;
 using Application.Interface.Service;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Validators.Authenticate
+namespace Application.Validators.Authenticate
 {
     public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     {
@@ -15,8 +14,7 @@ namespace Infrastructure.Validators.Authenticate
                 .EmailAddress()
                 .CustomAsync(async (email, context, ct) =>
                 {
-                    var isExistEmail = await accountService.GetAll()
-                        .AnyAsync(e => e.Email.ToLower() == email, cancellationToken: ct);
+                    var isExistEmail = await accountService.FindAsync(e => e.Email.ToLower() == email.ToLower()) != null;
                     if (isExistEmail)
                     {
                         context.AddFailure("Email already exists");

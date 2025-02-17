@@ -1,7 +1,7 @@
 ﻿using Application.Constant;
 using Application.Interface.Service;
 
-namespace Infrastructure.Implement.Service
+namespace Application.Services
 {
     public class TimeService : ITimeService
     {
