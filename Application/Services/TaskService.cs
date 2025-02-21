@@ -42,13 +42,11 @@ namespace Application.Services
 
         public async Task<ResponseResult<IEnumerable<TaskVM>>> GetAllTasksAsync()
         {
-            var tasks = await taskRepo.GetAllAsync();
-            //.Where(t => t.CreatedBy == currentUserId
-            //&& !t.IsRemoved)
-            //.OrderBy(t => t.Status)
-            //.ThenByDescending(t => t.Priority)
-            //.ThenBy(t => t.CreatedAt)
-            //.ToListAsync();
+            var tasks = await taskRepo.GetAllAsync(t => t.CreatedBy == currentUserId
+                && !t.IsRemoved);
+            tasks = [.. tasks.OrderBy(t => t.Status)
+                .ThenByDescending(t => t.Priority)
+                .ThenBy(t => t.CreatedAt)];
 
             return new ResponseResult<IEnumerable<TaskVM>>
             {

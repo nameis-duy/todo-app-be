@@ -2,7 +2,6 @@
 using Application.Interface.Repository;
 using Application.Interface.Service;
 using Application.Services;
-using FluentValidation;
 using Infrastructure.ExtensionService;
 using Infrastructure.Implement;
 using Infrastructure.Implement.Repository;
@@ -22,8 +21,7 @@ namespace Infrastructure
                 .AddAuthen(config)
                 .AddPersistance(config)
                 .AddServices()
-                .AddMapsterConfig()
-                .AddValidatorsFromAssemblyContaining(typeof(DependencyInjection));
+                .AddMapsterConfig();
 
             return services;
         }
