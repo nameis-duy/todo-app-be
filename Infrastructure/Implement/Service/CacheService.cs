@@ -1,30 +1,30 @@
 ﻿using Application.Interface.Service;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
 
-namespace Application.Services
+namespace Infrastructure.Implement.Service
 {
     public class CacheService : ICacheService
     {
-        private readonly IDistributedCache cache;
+        private readonly IMemoryCache cache;
 
-        public CacheService(IDistributedCache cache)
+        public CacheService(IMemoryCache cache)
         {
             this.cache = cache;
         }
 
-        public async Task<T?> GetAsync<T>(string key)
+        public T? Get<T>(string key)
         {
-            var cacheData = await cache.GetStringAsync(key);
+            cache.TryGetValue(key, out string? cacheData);
             if (cacheData != null) return JsonSerializer.Deserialize<T>(cacheData);
             return default;
         }
 
-        public async Task SetAsync<T>(string key, T data, int minutesValid)
+        public void Set<T>(string key, T data, int minutesValid)
         {
             var dataJson = JsonSerializer.Serialize(data);
-            var opts = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(minutesValid));
-            await cache.SetStringAsync(key, dataJson, opts);
+            cache.Set(key, dataJson, TimeSpan.FromMinutes(minutesValid));
         }
     }
 }

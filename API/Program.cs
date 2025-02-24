@@ -1,5 +1,6 @@
 using API;
 using Application;
+using Hangfire;
 using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,8 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 }
 
 app.UseCors();
+
+app.UseHangfireDashboard();
 
 app.UseExceptionHandler();
 

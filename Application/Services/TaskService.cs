@@ -14,13 +14,16 @@ namespace Application.Services
         private readonly ITaskRepo taskRepo;
         private readonly IClaimService claimService;
         private readonly int currentUserId;
+        private readonly IBackgroundService backgroundService;
 
         public TaskService(ITaskRepo taskRepo,
                            IUnitOfWork uow,
-                           IClaimService claimService) : base(taskRepo, uow)
+                           IClaimService claimService, 
+                           IBackgroundService backgroundService) : base(taskRepo, uow)
         {
             this.taskRepo = taskRepo;
             this.claimService = claimService;
+            this.backgroundService = backgroundService;
             currentUserId = claimService.GetCurrentUserId();
         }
 
@@ -32,11 +35,16 @@ namespace Application.Services
 
             await taskRepo.AddAsync(task);
             var isSucceed = await uow.SaveChangeAsync();
-            if (isSucceed) return new ResponseResult<TaskVM>
+            if (isSucceed)
             {
-                Data = task.Adapt<TaskVM>(),
-                IsSucceed = isSucceed,
-            };
+                var backgroundJobTimespan = task.ExpiredAt.Subtract(task.CreatedAt);
+                await backgroundService.AddTaskSetExpiredSchedule(task.Id, backgroundJobTimespan);
+                return new ResponseResult<TaskVM>
+                {
+                    Data = task.Adapt<TaskVM>(),
+                    IsSucceed = isSucceed,
+                };
+            }
             throw new SystemException("Create tasks failed. Server error.");
         }
 

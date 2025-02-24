@@ -54,7 +54,7 @@ namespace Application.Services
                         minuteValid: refreshTokenMinutesValid);
 
                     //cache refresh token in distributed cache
-                    await cacheService.SetAsync(string.Format(CacheConstant.REFRESH_TOKEN_CACHE_ID, account.Id),
+                    cacheService.Set(string.Format(CacheConstant.REFRESH_TOKEN_CACHE_ID, account.Id),
                                                 refreshToken,
                                                 refreshTokenMinutesValid);
 
@@ -121,7 +121,7 @@ namespace Application.Services
 
         public async Task<ResponseResult<AuthenticateResult>> RefreshTokenAsync(RefreshTokenRequest dto)
         {
-            var cachedRefreshToken = await cacheService.GetAsync<string>(string.Format(CacheConstant.REFRESH_TOKEN_CACHE_ID, dto.UserId));
+            var cachedRefreshToken = cacheService.Get<string>(string.Format(CacheConstant.REFRESH_TOKEN_CACHE_ID, dto.UserId));
             if (cachedRefreshToken is not null)
             {
                 if (cachedRefreshToken == dto.CurrentRefreshToken)
@@ -143,7 +143,7 @@ namespace Application.Services
                         minuteValid: refreshTokenMinutesValid);
 
                     //cache refresh token in distributed cache
-                    await cacheService.SetAsync(string.Format(CacheConstant.REFRESH_TOKEN_CACHE_ID, account.Id),
+                    cacheService.Set(string.Format(CacheConstant.REFRESH_TOKEN_CACHE_ID, account.Id),
                                                 refreshToken,
                                                 refreshTokenMinutesValid);
 

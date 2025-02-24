@@ -18,7 +18,7 @@ namespace API
                 .AddEndpointsApiExplorer()
                 .AddSwagger()
                 .AddHttpContextAccessor()
-                .AddDistributedMemoryCache();
+                .AddMemoryCache();
 
             return services;
         }

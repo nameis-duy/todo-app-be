@@ -2,7 +2,7 @@
 {
     public interface ICacheService
     {
-        Task<T?> GetAsync<T>(string key);
-        Task SetAsync<T>(string key, T data, int minutesValid);
+        T? Get<T>(string key);
+        void Set<T>(string key, T data, int minutesValid);
     }
 }
