@@ -23,7 +23,7 @@ namespace Infrastructure.Implement.Service
         {
             var task = await _taskRepo.FirstOrDefaultAsync(t => t.Id == taskId);
             if (task == null) return string.Empty;
-            if (task.Status == Status.InProcess) return string.Empty;
+            if (task.Status == Status.InProcess || task.Status == Status.Completed) return string.Empty;
 
             return BackgroundJob.Schedule(() => ChangeTaskStatusAsync(task), startTime);
         }
